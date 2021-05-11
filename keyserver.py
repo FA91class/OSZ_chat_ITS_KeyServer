@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" einfacher Server zum Hinterlegen der RSA Schlüssel """
+"""Server for multithreaded (asynchronous) chat application."""
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 import os
@@ -16,7 +16,6 @@ def checkAndCreateDatadirectory():
         print('Fehler: Kann das Verzeichnis %s nicht erstellen. ' % directory)
 
 def checkIfFileExists(name):
-    # gibt es die Datei "name" schon?
     try:
         if os.path.exists(directory + name + '.txt'):
             return True
@@ -26,7 +25,6 @@ def checkIfFileExists(name):
         print('Fehler: Die ID gibt es schon: ' + directory)
 
 def printListofIDs():
-    # gibt eine Liste der vorhandenen Dateien aus
     try:
         filelist = os.listdir(directory)
         return [sub.replace('.txt', '') for sub in filelist]
@@ -35,7 +33,7 @@ def printListofIDs():
 
 
 def accept_incoming_connections():
-    """ Eingehende Verbindungen"""
+    """Sets up handling for incoming clients."""
     while True:
         client, client_address = SERVER.accept()
         print("%s:%s ist verbunden." % client_address)
@@ -44,8 +42,8 @@ def accept_incoming_connections():
         Thread(target=handle_client, args=(client,)).start()
 
 
-def handle_client(client):  
-    """ Für den ersten Dialog mit einem einzelnen Client """
+def handle_client(client):  # Takes client socket as argument.
+    """Handles a single client connection."""
 
     welcome = ""
 
@@ -68,6 +66,8 @@ def handle_client(client):
         try:
             msg = client.recv(BUFSIZ)
             msg = msg.decode()
+
+            #try:
 
             # alle Möglichkeiten durchgehen
             if "speichere" in msg:
@@ -92,9 +92,12 @@ def handle_client(client):
                 # hole key aus ID.txt:
                 key = ''
                 try:
+
                     with open(directory + ID + '.txt', 'r', encoding='utf-8') as f:
-                        key = f.readline()
-                        client.send(bytes(key, "utf8"))
+                        key=f.read()
+
+                    client.send(bytes(key, "utf8"))
+
                 except:
                     client.send(bytes("Die ID '%s' ist nicht vorhanden" % ID, "utf8"))
 
@@ -104,6 +107,7 @@ def handle_client(client):
                 printListofIDs()
                 IDs = printListofIDs()
                 client.send(bytes("\n".join(IDs), "utf8"))
+                #client.send(bytes("list", "utf8"))
                 continue
             elif "###q###" in msg:
                 client.send(bytes("quit", "utf8"))
@@ -117,8 +121,8 @@ def handle_client(client):
             break
 
 
-def broadcast(msg, prefix=""):
-    """ Nachricht an alle Clients """
+def broadcast(msg, prefix=""):  # prefix is for name identification.
+    """Broadcasts a message to all the clients."""
 
     for sock in clients:
         sock.send(bytes(prefix, "utf8") + msg)
@@ -144,9 +148,3 @@ if __name__ == "__main__":
     ACCEPT_THREAD.start()
     ACCEPT_THREAD.join()
     SERVER.close()
-
-
-
-
-
-
