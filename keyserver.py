@@ -98,6 +98,7 @@ def handle_client(client):
 SERVER = socket(AF_INET, SOCK_STREAM)
 SERVER.bind(Const.ADDR)
 HTTP_THREAD = Thread(target=KeyAPI.KeyAPI.run)
+HTTP_THREAD.start()
 
 if __name__ == "__main__":
     """ Datenverzeichnis checken und wenn nicht vorhanden anlegen. Keyfiles werden als txt-Datei abgelegt."""

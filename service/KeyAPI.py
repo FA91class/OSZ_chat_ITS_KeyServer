@@ -37,10 +37,3 @@ class KeyAPI(BaseHTTPRequestHandler):
 
         except:
             return False
-        
-            
-        # try:
-        #     with open(Const.directory + ID + '.txt', 'r', encoding='utf-8') as f:
-        #         key = f.readline()
-        # except:
-        #     return False
