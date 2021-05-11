@@ -1,9 +1,10 @@
 import glob
 from http.server import BaseHTTPRequestHandler
 import json
+import os
+from os.path import split
 from models.Key import Key
 from urllib.parse import urlparse
-import ntpath
 from models import Const
 
 class APIServer(BaseHTTPRequestHandler):
@@ -13,12 +14,15 @@ class APIServer(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/json')
         self.end_headers()
 
+    def _data_response(self, data):
+        return bytearray(json.dumps(data), encoding= "utf-8")
+
     def loadKeys():
         keys = []
         for file in glob.glob(Const.directory + '*.txt'):
     
-                filepath = file.split('.')[0]
-                filename = ntpath.basename(filepath)
+                filepath = os.path.basename(file)
+                filename = filepath.split('.')[0]
 
                 with open(file, 'r', encoding='utf-8') as f:
                     data = f.readline()
@@ -34,7 +38,8 @@ class APIServer(BaseHTTPRequestHandler):
             keys = APIServer.loadKeys()
 
             if keys:
-                self.send_response(200, json.dumps(keys))
+                self._set_response()
+                self.wfile.write(self._data_response(keys))
             else:
                 self.send_response(404, json.dumps('[]'))
 
@@ -55,7 +60,8 @@ class APIServer(BaseHTTPRequestHandler):
                 for key in keys:
 
                     if key.ID == searchId:
-                        self.send_response(200, json.dumps(key))
+                        self._set_response()
+                        self.wfile.write(self._data_response(key))
                     else:
                         self.send_response(404, json.dumps('{}'))
 
@@ -70,19 +76,15 @@ class APIServer(BaseHTTPRequestHandler):
         post_data = self.rfile.read(content_length)
  
         if self.path == '/setPublicKey':
-
-            string = post_data.decode("utf-8")
-            jsonData = json.loads(string)
-            key = Key(jsonData['id'], jsonData['pubKey'])
-            self._set_response()
             
-            # try:
-            #     jsonData = json.load(post_data)
-            #     key = Key(jsonData.ID, jsonData.pubKey)
-            #     self._set_response()
-            # except:
-            #     self.send_response(404)
-            #     return;
+            try:
+                string = post_data.decode("utf-8")
+                jsonData = json.loads(string)
+                key = Key(jsonData['id'], jsonData['pubKey'])
+                self._set_response()
+            except:
+                self.send_response(404)
+                return;
 
             with open(Const.directory + key.ID + '.txt', 'w', encoding='utf-8') as f:
                 f.write(key.pubKey)
