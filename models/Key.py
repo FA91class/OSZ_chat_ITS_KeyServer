@@ -1,3 +1,6 @@
+import json
+
+
 class Key(object):
     
     def __init__(self, ID, pubKey):
@@ -5,4 +8,3 @@ class Key(object):
 
         self.ID = ID
         self.pubKey = pubKey
-        
