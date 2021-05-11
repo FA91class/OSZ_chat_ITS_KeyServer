@@ -61,7 +61,7 @@ class APIServer(BaseHTTPRequestHandler):
                         self._set_response()
                         self.wfile.write(self._data_response(key))
                         return;
-                        
+
                     self.send_response(404, json.dumps('{}'))
 
             else:
@@ -81,6 +81,7 @@ class APIServer(BaseHTTPRequestHandler):
                 jsonData = json.loads(string)
                 key = Key(jsonData['id'], jsonData['pubKey'])
                 self._set_response()
+                self.wfile.write(self._data_response(key.__dict__))
             except:
                 self.send_response(404)
                 return;
