@@ -2,9 +2,8 @@ import glob
 from http.server import BaseHTTPRequestHandler
 import json
 import os
-from os.path import split
 from models.Key import Key
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 from models import Const
 
 class APIServer(BaseHTTPRequestHandler):
@@ -33,7 +32,7 @@ class APIServer(BaseHTTPRequestHandler):
 
     def do_GET(self):
 
-        if self.path == '/getPublicKeys':
+        if str.startswith(self.path, "/getPublicKeys"):
 
             keys = APIServer.loadKeys()
 
@@ -43,27 +42,27 @@ class APIServer(BaseHTTPRequestHandler):
             else:
                 self.send_response(404, json.dumps('[]'))
 
-        if self.path == '/getPublicKey':
+        if str.startswith(self.path, "/getPublicKeyById"):
 
             try:
-                query = urlparse(self.path).query
-                query_components = dict(qc.split("=") for qc in query.split("&"))
+                parsed = urlparse(self.path)
+                searchId = parse_qs(parsed.query)['id'][0]
             except:
                 self.send_response(404, json.dumps('[]'))
                 return
 
             keys = APIServer.loadKeys()
-            searchId = query_components["id"]
 
             if keys:
 
                 for key in keys:
 
-                    if key.ID == searchId:
+                    if key["ID"] == searchId:
                         self._set_response()
                         self.wfile.write(self._data_response(key))
-                    else:
-                        self.send_response(404, json.dumps('{}'))
+                        return;
+                        
+                    self.send_response(404, json.dumps('{}'))
 
             else:
                 self.send_response(404, json.dumps([]))
