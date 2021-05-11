@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """ einfacher Server zum Hinterlegen der RSA Schlüssel """
+from service import KeyAPI
 import socket
 import threading
 from classes import Helper
 from threading import Thread
 from models import Const
+from models import Key
 from socket import AF_INET, socket, SOCK_STREAM
 
 def accept_incoming_connections():
@@ -42,6 +44,7 @@ def handle_client(client):
         try:
             msg = client.recv(Const.BUFSIZ)
             msg = msg.decode()
+            
 
             # alle Möglichkeiten durchgehen
             if "speichere" in msg:
@@ -49,7 +52,9 @@ def handle_client(client):
                 #print (msg)
                 ID, key = msg[:9],msg[10:]
                 key = key.strip()
+
                 print("ID = %s, key = %s" % (ID, key))
+
                 # speichere key unter ID.txt ab:
                 with open(Const.directory + name + '.txt', 'w', encoding='utf-8') as f:
                     f.write(key)
@@ -90,9 +95,10 @@ def handle_client(client):
             print("Verbindung wurde unterbrochen")
             break
 
-
 SERVER = socket(AF_INET, SOCK_STREAM)
 SERVER.bind(Const.ADDR)
+HTTP_THREAD = Thread(target=KeyAPI.KeyAPI.run)
+HTTP_THREAD.start()
 
 if __name__ == "__main__":
     """ Datenverzeichnis checken und wenn nicht vorhanden anlegen. Keyfiles werden als txt-Datei abgelegt."""
