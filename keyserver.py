@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 """ einfacher Server zum Hinterlegen der RSA Schlüssel """
 from service import KeyAPI
@@ -9,18 +10,19 @@ from models import Const
 from models import Key
 from socket import AF_INET, socket, SOCK_STREAM
 
+
 def accept_incoming_connections():
-        """ Eingehende Verbindungen"""
-        while True:
-            client, client_address = SERVER.accept()
-            print("%s:%s ist verbunden." % client_address)
-            client.send(
-                bytes("Grüße vom keyserver! Gib Deine ID ein und drücke 'Enter'!", "utf8"))
-            Const.addresses[client] = client_address
-            threading(target=Helper.handle_client, args=(client,)).start()
+    """ Eingehende Verbindungen"""
+    while True:
+        client, client_address = SERVER.accept()
+        print("%s:%s ist verbunden." % client_address)
+        client.send(
+            bytes("Grüße vom keyserver! Gib Deine ID ein und drücke 'Enter'!", "utf8"))
+        Const.addresses[client] = client_address
+        threading(target=Helper.handle_client, args=(client,)).start()
 
 
-def handle_client(client):  
+def handle_client(client):
     """ Für den ersten Dialog mit einem einzelnen Client """
 
     welcome = ""
@@ -28,11 +30,10 @@ def handle_client(client):
     name = client.recv(Const.BUFSIZ).decode("utf8").replace("\n", "")
 
     welcome = "\nWillkommen %s!\nDu hast folgende Möglichkeiten:\n\n" \
-            "speichere <publickey>\nspeichert Deinen öffentlichen Schlüssel unter Deiner ID ab.\n\n" \
-            "zeige <ID>\nsendet den öffentlichen Schlüssel für die ID <ID>.\n\n" \
-            "liste \nlistet alle vorhandenen IDs auf.\n\n" \
-            "###q###\ntrennt die Verbindung zum Keyserver\n" % name
-
+        "speichere <publickey>\nspeichert Deinen öffentlichen Schlüssel unter Deiner ID ab.\n\n" \
+        "zeige <ID>\nsendet den öffentlichen Schlüssel für die ID <ID>.\n\n" \
+        "liste \nlistet alle vorhandenen IDs auf.\n\n" \
+        "###q###\ntrennt die Verbindung zum Keyserver\n" % name
 
     client.send(bytes(welcome, "utf8"))
     msg = "%s hat sich am keyserver angemeldet!" % name
@@ -44,13 +45,12 @@ def handle_client(client):
         try:
             msg = client.recv(Const.BUFSIZ)
             msg = msg.decode()
-            
 
             # alle Möglichkeiten durchgehen
             if "speichere" in msg:
 
                 #print (msg)
-                ID, key = msg[:9],msg[10:]
+                ID, key = msg[:9], msg[10:]
                 key = key.strip()
 
                 print("ID = %s, key = %s" % (ID, key))
@@ -63,7 +63,7 @@ def handle_client(client):
                 continue
 
             elif "zeige" in msg:
-                dummy, ID = msg[:5],msg[6:]
+                dummy, ID = msg[:5], msg[6:]
 
                 # die ID muss gestripped werden
                 ID = ID.strip()
@@ -75,7 +75,8 @@ def handle_client(client):
                         key = f.readline()
                         client.send(bytes(key, "utf8"))
                 except:
-                    client.send(bytes("Die ID '%s' ist nicht vorhanden" % ID, "utf8"))
+                    client.send(
+                        bytes("Die ID '%s' ist nicht vorhanden" % ID, "utf8"))
 
                 continue
 
@@ -94,6 +95,7 @@ def handle_client(client):
         except:
             print("Verbindung wurde unterbrochen")
             break
+
 
 SERVER = socket(AF_INET, SOCK_STREAM)
 SERVER.bind(Const.ADDR)

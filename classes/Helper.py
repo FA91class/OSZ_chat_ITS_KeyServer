@@ -1,6 +1,7 @@
 import os
 from models import Const
 
+
 class Helper():
 
     def checkAndCreateDatadirectory():
@@ -10,7 +11,7 @@ class Helper():
                 os.makedirs(Const.directory)
         except OSError:
             print('Fehler: Kann das Verzeichnis %s nicht erstellen. ' %
-                Const.directory)
+                  Const.directory)
 
     def checkIfFileExists(name):
         # gibt es die Datei "name" schon?
