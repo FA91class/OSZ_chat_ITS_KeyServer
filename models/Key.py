@@ -3,8 +3,8 @@ import json
 
 class Key(object):
     
-    def __init__(self, ID, pubKey):
+    def __init__(self, id, pubKey):
         super(Key, self).__init__()
 
-        self.ID = ID
+        self.id = id
         self.pubKey = pubKey
