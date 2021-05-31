@@ -24,7 +24,7 @@ class APIServer(BaseHTTPRequestHandler):
                 filename = filepath.split('.')[0]
 
                 with open(file, 'r', encoding='utf-8') as f:
-                    data = f.readline()
+                    data = f.read()
 
                 keys.append(Key(filename, data).__dict__)
 
@@ -51,18 +51,18 @@ class APIServer(BaseHTTPRequestHandler):
                 self.send_response(404, json.dumps('[]'))
                 return
 
-            keys = APIServer.loadKeys()
+            keys: list = APIServer.loadKeys()
 
             if keys:
 
                 for key in keys:
 
-                    if key["ID"] == searchId:
+                    if key["id"] == searchId:
                         self._set_response()
                         self.wfile.write(self._data_response(key))
                         return;
 
-                    self.send_response(404, json.dumps('{}'))
+                self.send_response(404, json.dumps('{}'))
 
             else:
                 self.send_response(404, json.dumps([]))
@@ -86,5 +86,5 @@ class APIServer(BaseHTTPRequestHandler):
                 self.send_response(404)
                 return;
 
-            with open(Const.directory + key.ID + '.txt', 'w', encoding='utf-8') as f:
+            with open(Const.directory + key.id + '.txt', 'w', encoding='utf-8') as f:
                 f.write(key.pubKey)

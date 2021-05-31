@@ -72,7 +72,7 @@ def handle_client(client):
                 key = ''
                 try:
                     with open(Const.directory + ID + '.txt', 'r', encoding='utf-8') as f:
-                        key = f.readline()
+                        key = f.read()
                         client.send(bytes(key, "utf8"))
                 except:
                     client.send(
